@@ -277,12 +277,15 @@ def get_nn_metrics(model, data, word_to_id, **kwargs):
 
 def get_embeddings(texts, min_vocab_size=0):
     """
+    Build emeddding mappings based on `texts`.
+    
     Args:
         texts (Iterable[str]): A sequence of text to fit the embeddings
             on.
         min_vocab_size (Optional[int]): Minimum number of words, not
             counting those in `texts` to include in the embedding
             vocabulary.
+            
     Returns:
         (tuple): tuple containing:
             word_to_vec (dict): A map between word tokens and numpy vectors.
