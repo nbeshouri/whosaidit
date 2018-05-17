@@ -8,25 +8,28 @@ Todo:
     * With two models and two shows the name space is getting cluttered.
         If you expand this, the module should probably be broken up.
     * Use logging module to replace print statements.
+    * Unit tests.
 
 """
 
 import joblib
 import os
 import re
-from collections import OrderedDict
 import pandas as pd
 import numpy as np
 from munch import Munch
 from functools import partial
+from . import utils
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import accuracy_score
 from sklearn.pipeline import make_pipeline
-from sklearn.metrics import f1_score, precision_score, recall_score
-from . import utils
+from sklearn.metrics import (
+    f1_score, 
+    precision_score, 
+    recall_score,
+    accuracy_score
+)
 
 
 data_dir_path = os.path.join(os.path.dirname(__file__), 'data')

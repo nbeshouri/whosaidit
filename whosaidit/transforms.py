@@ -21,7 +21,7 @@ def normalize(text):
     text = text.lower()
     
     replacements = [
-        (r'\[.*\]', ''), # Remove meta-text annotation.
+        (r'\[.*\]', ''),  # Remove meta-text annotation.
         (r'\(.*\)', ''),  
         (r'[——]', ' '),
         (r'--', ' '),
