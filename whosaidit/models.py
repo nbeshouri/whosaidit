@@ -4,7 +4,7 @@ as some model specific and show specific utilities.
 
 Todo:
     * Some of these functions might be useful elsewhere and should
-        be moved to the utils module.
+        be moved to the utils or transforms modules.
     * With two models and two shows the name space is getting cluttered.
         If you expand this, the module should probably be broken up.
     * Use logging module to replace print statements.

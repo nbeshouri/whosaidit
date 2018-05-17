@@ -1,7 +1,17 @@
 """
+This module contains the scrapers used to gather the data for the models.
 
+Note:
+    Scraped data is stored in `Munch` objects, which are just dictionaries
+    whose values can be accessed using `munch.key`.
+
+Todo:
+    * `Scraper` class is too loosely defined and there's too much code
+        duplication in the `scrape` method.
+    * Lack of docstrings.
 
 """
+
 from bs4 import BeautifulSoup
 import requests
 import re
@@ -12,6 +22,7 @@ import numpy as np
 import time
 from glob import glob
 from . import utils
+
 
 data_dir_path = os.path.join(os.path.dirname(__file__), 'data')
 archived_data_dir_path = os.path.join(data_dir_path, 'archived')
@@ -31,24 +42,6 @@ class Scraper():
     def get_url_header(url):
         return re.split(r'(?<=\w)/(?=\w)', url)[0]
 
-# class SouthParkScraper(Scraper):
-# 
-#     @staticmethod    
-#     def scrape_ep_links(listing_url):
-#         res = requests.get(url)
-#         soup = BeautifulSoup(res.text, 'lxml')
-#         season_links = soup.find_all(name='a', href=re.compile(r'/Scripts:'))
-#         url_header = get_url_header(listing_url)
-#         ep_links = []
-#         for season_link in season_link:
-#             full_season_link = url_header + season_link['href']
-#             season_res = requests.get(full_season_link)
-#             season_soup = BeautifulSoup(season_res, 'lxml')
-#             for ep_link in season_soup.find_all(name='a', href=re.compile(r'/Script$')):
-#                 full_ep_link = url_header + ep_link['href']
-#                 title = ep_link['title']
-#                 print(title)
-#                 return
 
 class BuffyScraper(Scraper):
     
@@ -119,14 +112,11 @@ class BuffyScraper(Scraper):
 
 class FuturamaScraper(Scraper):
     
-    def __init__(self):
-        pass
-        # self.url
-    
     def scrape_episode(self, ep_data):
         """
         Return a list of bunch objects with the keys in the form:
         [character, season, episode, utterance, text]
+        
         """
         res = requests.get(ep_data.transcript_url)
         soup = BeautifulSoup(res.text, 'lxml')
@@ -170,10 +160,10 @@ class FuturamaScraper(Scraper):
         
         return dialogue_elements  
 
-      
     def scrape_ep_links(self, url):
         """
         Return a list of `Munches` representing episode links.
+        
         """
         res = requests.get(url)
         soup = BeautifulSoup(res.text, 'lxml')
@@ -210,10 +200,3 @@ class FuturamaScraper(Scraper):
         utils.archive_data(file_name)    
         dump_path = os.path.join(data_dir_path, file_name)
         joblib.dump(dialogue_elements, dump_path)
-
-
-if __name__ == '__main__':
-    # archive_data('futurama_dialogue_elements.pickle')
-    SouthParkScraper().scrape()
-    
-    

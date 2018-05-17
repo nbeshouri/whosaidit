@@ -1,11 +1,6 @@
 """
 This module contains utilities used by other modules or notebooks.
 
-Todo:
-    * Rename to "scoring"?
-    * Use local imports so doesn't force keras to be imported if not
-        needed.
-
 """
 
 import os
@@ -19,7 +14,7 @@ archived_data_dir_path = os.path.join(data_dir_path, 'archived')
 
 def archive_data(file_name):
     """
-    Move a file in the data folder to archive if the file exists.
+    Move a file in the data folder to the archive folder if the file exists.
     
     """
     if '/' in file_name:
@@ -52,4 +47,3 @@ def archive_data(file_name):
     new_file_name = just_name + '_' + new_version_str + extension
     new_path = os.path.join(archived_data_dir_path, new_file_name)
     os.rename(old_path, new_path)
-

@@ -9,36 +9,55 @@ from contextlib import contextmanager
 import click
 
 
-@click.group()
-def cli():
-    """Dummy function used by `Click`."""
-    pass
-
-
 @click.command()
-@click.argument('article_name')
-def predict(article_name):
-    """Predict the rating of the given article and print result."""
-    # This is a hack to prevent keras and tensor flow from dumping
-    # confusing messages to the command line when imported.
+def cli():
+    print('Loading models...')
+    # Do some slow imports.
+    import pandas as pd
+    from . import models
+    from . import transforms
     with suppress_stderr():
         import keras
-    from .predict import predict_score
-    rating = predict_score(article_name)
-    print(f'The model gives the article "{article_name}" a rating of {rating:.2f}.')
-
-
-@click.command()
-@click.option('-n', type=int)
-@click.option('-f', type=int, default=100)
-@click.option('--save', type=bool, default=True)
-def scrape(n, f, save):
-    from .scraper import scrape_articles
-    scrape_articles(article_count=n, log_freq=f, save=save)
-
-
-cli.add_command(predict)
-cli.add_command(scrape)
+    
+    pre_fix = 'futurama_demo'
+    
+    # Load models.
+    nb_model = models.load_nb_model(f'{pre_fix}_nb_model.pickle')
+    nn_model, word_to_id = models.load_nn_model(f'{pre_fix}_nn_model.hdf5')
+    class_labels = sorted(['Fry', 'Bender', 'Leela', 'Farnsworth', 'Zoidberg'])
+    print('Models loaded.')
+    
+    while True:
+        
+        text = click.prompt('Please enter some dialogue (or q to quit)', type=str)
+        if text == 'q' or text == 'quit':
+            return
+            
+        normed_text = transforms.normalize(text)
+        lemmas = transforms.to_lemmas(normed_text)
+        tokens = transforms.to_tokens(normed_text)
+        
+        # Show text tokens and lemmas.
+        print(f'\nInput: "{text}"')
+        print(f'Tokens: "{tokens}"')
+        print(f'Lemmas: "{lemmas}"')
+        
+        # Compute and print character probs with naive Bayes. 
+        nb_pred_probs = nb_model.predict_proba([lemmas])[0]
+        nb_results = pd.Series(nb_pred_probs, index=class_labels)
+        nb_results = nb_results.map(lambda x: f'{x:.3%}')
+        # HACK: remove the 'dtype: object' part of Series's string
+        # representation.
+        nb_results = str(nb_results).replace('\ndtype: object', '')
+        print(f'\nNaive Bayes:\n\n{nb_results}\n')
+        
+        # Compute and print character probs with the NN model.
+        X = models.get_nn_X([tokens], word_to_id)
+        nn_pred_probs = nn_model.predict(X)[0]
+        nn_results = pd.Series(nn_pred_probs, index=class_labels)
+        nn_results = nn_results.map(lambda x: f'{x:.3%}')
+        nn_results = str(nn_results).replace('\ndtype: object', '')
+        print(f'Neural network:\n\n{nn_results}\n')
 
 
 @contextmanager

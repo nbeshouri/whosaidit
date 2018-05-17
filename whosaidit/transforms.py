@@ -1,23 +1,29 @@
-from textblob import TextBlob
+"""
+This module contains text transformation functions. It should probably
+also contain some of the data manipulation funtions in models.py.
+
+"""
+
 import re
 import spacy
 
-# TODO: 23889  S10E12  Stench and Stenchibility  pfffffff  locker tonya keep tap shoe right dan...       115 -0.047321  Bender  Pfffffff!\nSee that locker? Tonya keeps her ta...  pfffffff ! \n see that locker ? tonya keeps he...
-
 
 nlp = spacy.load('en_core_web_md')
+# Due to a bug, this language model doesn't contain
+# stop words, so we fix that here.
 for word in nlp.Defaults.stop_words:
     lex = nlp.vocab[word]
     lex.is_stop = True
 
 
 def normalize(text):
+    """Make text lowercase and make some replacements."""
     text = text.lower()
     
     replacements = [
         (r'\[.*\]', ''), # Remove meta-text annotation.
         (r'\(.*\)', ''),  
-        (r'[——]', ' '),  # Dashes to spaces.
+        (r'[——]', ' '),
         (r'--', ' '),
         (r'-\s', ' '),
         (r'doo+m', 'doom'),
@@ -40,6 +46,7 @@ def normalize(text):
 
 
 def to_lemmas(text):
+    """Convert words in `text` to a string of lemmas."""
     lemmas = []
     for token in nlp(text):
         if not token.is_punct and not token.is_stop and len(token.text) < 15:
@@ -49,6 +56,7 @@ def to_lemmas(text):
 
 
 def to_tokens(text):
+    """Convert words in `text` to a string of tokens."""
     tokens = []
     allowed_punct = set('.?!,')
     for token in nlp(text):
@@ -61,13 +69,16 @@ def to_tokens(text):
 
 
 def get_polarity(text):
+    """Get average pos/neg polarity of a string."""
+    from textblob import TextBlob
     blob = TextBlob(text)
     return blob.sentiment.polarity
     
 
-def extract_text_features(episodes):
+def extract_text_features(episode_munches):
+    """Add lemma, token, and polarity to episode Munch objects."""
     output = []
-    for episode in episodes:
+    for episode in episode_munches:
         episode = episode.copy()
         normalized = normalize(episode.text)
         episode.lemmas = to_lemmas(normalized)
