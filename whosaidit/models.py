@@ -67,7 +67,7 @@ def train_futurama_cli_models():
     """
     main_cast = ['Fry', 'Bender', 'Leela', 'Farnsworth', 'Zoidberg']
     data_df = get_futurama_dataframe(main_cast)
-    return train_models(data_df, 'futurama_main_cast', min_vocab_size=65000)
+    return train_models(data_df, 'futurama_demo', min_vocab_size=65000)
     
 
 def dry_run():
